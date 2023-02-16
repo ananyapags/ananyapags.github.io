@@ -1,0 +1,184 @@
+/* for tablets */
+
+/* landscape */
+@media screen and (max-width: 1325px) {
+  /* Banner */
+  .banner {
+    height: 100vh;
+    background-position: 50% -300px;
+  }
+  #banner-content {
+    top: 45%;
+  }
+  #banner-content div {
+    width: 70%;
+    font-size: 3.5rem;
+  }
+  #banner-content i {
+    width: 20%;
+    font-size: 2.5rem;
+    border-radius: 10px 10px 0 0;
+  }
+
+  /* Things I've Done */
+  .title {
+    font-size: 1.5rem;
+  }
+  #subsection {
+    width: 80%;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+  }
+
+  #subsection .title img {
+    max-height: 18vh;
+    width: 18vw;
+    justify-items: end;
+    margin-top: auto;
+    margin-bottom: auto;
+    object-fit: cover;
+  }
+  .long {
+    grid-template-rows: 1fr 1fr;
+  }
+
+  /* tools */
+  .grid {
+    column-gap: 0.1rem;
+  }
+
+  .card img {
+    height: 10vh;
+  }
+
+  /* words I live by */
+  #quotes {
+    padding-bottom: 0;
+  }
+  /* Contact */
+  #connect {
+    line-height: 2.5rem;
+    font-size: 20px;
+    padding-top: 3rem;
+  }
+  #connect p {
+    text-align: center;
+    font-size: 2.25rem;
+  }
+  #connect span {
+    display: none;
+  }
+  .larger {
+    font-size: 3rem;
+    font-weight: 550;
+  }
+  .label {
+    font-weight: 550;
+    font-size: 2.5rem;
+  }
+  .icon:hover {
+    transform: scale(1);
+    color: rgba(0, 191, 255, 0.932);
+  }
+
+  /* generaled classes */
+  #opaque-bg {
+    background-color: rgba(240, 248, 255, 0.404);
+    width: 80%;
+    margin: 10vh auto 2vh auto;
+  }
+}
+
+/* portrait */
+@media screen and (max-width: 791px) {
+  /* Banner */
+  .banner {
+    height: 40vh;
+    background-position: 50% -300px;
+  }
+  #banner-content {
+    top: 18%;
+  }
+  #banner-content div {
+    font-size: 3.5rem;
+    width: auto;
+  }
+  #banner-content i {
+    font-size: 2.5rem;
+    width: 25%;
+  }
+
+  /* Things I've Done */
+  .title {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+  }
+  #subsection {
+    width: 95%;
+  }
+  #subsection .title img {
+    max-height: 80%;
+    width: 100%;
+  }
+
+  .card img {
+    height: 10vw;
+  }
+  .grid-tools .card {
+    width: 100%;
+  }
+
+  /* tools */
+  .long {
+    grid-template-rows: 1fr 1fr;
+  }
+
+  /* Contact */
+  #connect {
+    line-height: 2.5rem;
+    font-size: 20px;
+    padding-top: 3rem;
+  }
+  #connect p {
+    text-align: center;
+    font-size: 2.25rem;
+  }
+  #connect span {
+    display: none;
+  }
+  .larger {
+    font-size: 3rem;
+    font-weight: 550;
+  }
+  .label {
+    font-weight: 550;
+    font-size: 2.5rem;
+    width: 90%;
+  }
+  .icon:hover {
+    transform: scale(1);
+    color: rgba(0, 191, 255, 0.932);
+  }
+
+  /* general */
+  #opaque-bg {
+    width: 85%;
+  }
+
+  /* ASL translator */
+  .asl-video {
+    max-height: 25vh;
+  }
+
+  /* trees */
+  #trees-iFrame {
+    max-height: fit-content;
+  }
+
+  /*slitherPy*/
+  .slither-video {
+    max-height: 25vh;
+  }
+}

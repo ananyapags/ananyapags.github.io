@@ -21,7 +21,6 @@
     font-size: 1rem;
     border-radius: 5px 5px 0 0;
   }
-  /* Some Things I've Done */
   .title {
     font-size: 1.2rem;
     width: 100%;
@@ -73,15 +72,12 @@
   .info-grid p {
     font-size: 1rem;
   }
-
-  /* Words I live By */
   #quotes p {
     width: 90%;
     margin: 1.25rem auto 2rem auto;
     font-size: 1.3rem;
   }
 
-  /* Contact */
   #connect {
     line-height: 1rem;
     font-weight: 550;
@@ -152,8 +148,8 @@
     margin: auto auto 1rem 2rem;
   }
 
-  /*slitherPy */
-  .slither-video {
+  /*Space*/
+  .space-video {
     max-height: 60vh;
   }
 }
@@ -243,7 +239,6 @@
     font-size: 1rem;
   }
 
-  /* Words I live By */
   #quotes {
     padding-bottom: 0rem;
   }
@@ -333,7 +328,6 @@
     margin: auto;
   }
 
-  /* ASL Translator page */
   .asl-video {
     max-height: 45vh;
   }
@@ -345,8 +339,8 @@
     margin: auto auto 1rem 2rem;
   }
 
-  /*slitherPy */
-  .slither-video {
+  /*Space */
+  .space-video {
     max-height: 60vh;
   }
 }

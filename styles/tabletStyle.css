@@ -20,7 +20,6 @@
     border-radius: 10px 10px 0 0;
   }
 
-  /* Things I've Done */
   .title {
     font-size: 1.5rem;
   }
@@ -166,19 +165,15 @@
   #opaque-bg {
     width: 85%;
   }
-
-  /* ASL translator */
   .asl-video {
     max-height: 25vh;
   }
 
-  /* trees */
   #trees-iFrame {
     max-height: fit-content;
   }
 
-  /*slitherPy*/
-  .slither-video {
+  .space-video {
     max-height: 25vh;
   }
 }

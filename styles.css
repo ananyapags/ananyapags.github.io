@@ -25,34 +25,29 @@ body {
   color: var(--clr-fg);
   /*background-color: var(--clr-bg);*/
 }
-
 .light {
-  --clr-bg: #fcfcfc;
-  --clr-bg-alt: #fff;
-  --clr-header: #eb96b5;
-  --clr-fg: #555;
-  --clr-fg-alt: #444;
-  --clr-primary: #f23a87;
-  --clr-secondary: #ec81ae;
-  --shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-  --shadow-hamburger: rgba(100, 100, 111, 0.2) 0px 29px 29px -29px;
-  background-image: linear-gradient(245deg, #eb8db1 0%, #ffd9d9 74%);
+  --clr-bg: #ffffff;
+  --clr-bg-alt: #f7f7f7;
+  --clr-header: #0077b6;
+  --clr-fg: #222222;
+  --clr-fg-alt: #333333;
+  --clr-primary: #ff6f61;
+  --clr-secondary: #ffa69e;
+  --shadow: rgba(0, 0, 0, 0.1) 0px 5px 20px 0px;
+  --shadow-hamburger: rgba(0, 0, 0, 0.1) 0px 20px 20px -20px;
+  background-image: linear-gradient(180deg, #ffffff 0%, #e3e3e3 100%);
 }
 
 .dark {
-  --clr-bg: #23283e;
-  --clr-bg-alt: #2a2f4c;
-  --clr-header: #013457;
-  --clr-fg: #bdbddd;
-  --clr-fg-alt: #cdcdff;
-  --clr-primary: #f369a2;
-  --shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px,
-    rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
-  --shadow-hamburger: rgba(0, 0, 0, 0.16) 0px 36px 36px -36px,
-    rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
-  /*background-image: url('vortex.png');*/
-
-  background-image: linear-gradient(45deg, #000000 0%, #014470 74%);
+  --clr-bg: #121212;
+  --clr-bg-alt: #1a1a1a;
+  --clr-header: #48cae4;
+  --clr-fg: #e0e0e0;
+  --clr-fg-alt: #b0b0b0;
+  --clr-primary: #ff6f61;
+  --shadow: rgba(0, 0, 0, 0.3) 0px 8px 24px 0px;
+  --shadow-hamburger: rgba(0, 0, 0, 0.3) 0px 24px 24px -24px;
+  background-image: linear-gradient(180deg, #121212 0%, #2a2a2a 100%);
 }
 
 ::-moz-selection {

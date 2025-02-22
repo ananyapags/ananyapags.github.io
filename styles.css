@@ -502,3 +502,81 @@ img {
     display: none;
   }
 }
+/* Mobile Responsive Adjustments */
+@media (max-width: 600px) {
+  /* Base typography adjustments for readability */
+  body {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  h1 {
+    font-size: 2.2rem;
+  }
+  h2 {
+    font-size: 1.6rem;
+  }
+  h3 {
+    font-size: 1.3rem;
+  }
+  h4 {
+    font-size: 1.1rem;
+  }
+
+  /* Header and navigation refinements */
+  .header {
+    height: 5em;
+    padding: 0.5em 1em;
+  }
+  .nav__list {
+    flex-direction: column;
+    align-items: center;
+    padding: 1em 0;
+  }
+  .nav__list-item {
+    margin: 0.5em 0;
+  }
+  .nav__hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  /* Image scaling */
+  img {
+    margin: 0 auto;
+    max-width: 90%;
+    height: auto;
+  }
+
+  /* Section spacing */
+  .section {
+    padding: 2em 1em;
+    margin-top: 3em;
+  }
+
+  /* Projects grid becomes a single column for easier vertical scrolling */
+  .projects__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1em;
+    margin: 1em auto;
+  }
+
+  /* About section adjustments */
+  .about {
+    width: 90%;
+    text-align: center;
+    padding: 1em;
+  }
+
+  /* Contact section adjustments */
+  .contact {
+    padding: 1em;
+  }
+
+  /* Footer spacing */
+  .footer {
+    padding: 2em 1em;
+  }
+}

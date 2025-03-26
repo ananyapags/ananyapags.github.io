@@ -542,11 +542,23 @@ img {
     cursor: pointer;
   }
 
-  /* Image scaling */
+  /* Reorganize top intro section for mobile */
+  .top_intro {
+    flex-direction: column-reverse; /* This will move image to top */
+    align-items: center;
+    padding-top: 1em;
+    row-gap: 1em;
+    text-align: center;
+  }
+
+  /* Headshot image adjustments */
   img {
     margin: 0 auto;
-    max-width: 90%;
+    max-width: 200px; /* Appropriate size for mobile */
     height: auto;
+    width: 100%;
+    border-radius: 50%;
+    display: block;
   }
 
   /* Section spacing */

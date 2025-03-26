@@ -448,7 +448,7 @@ img {
 
 @media (max-width: 850px) {
   .header {
-    height: 6em;
+    height: 4em;
     padding-top: 1em;
     padding-left: 20px;
     padding-right: 20px;
@@ -483,10 +483,7 @@ img {
     margin: 0.5em 0;
   }
 
-  .nav__hamburger {
-    display: flex;
-    margin-left: 0.8em;
-  }
+  
 
   .about {
     align-items: center;
@@ -525,7 +522,7 @@ img {
   /* Header and navigation refinements */
   .header {
     height: 5em;
-    padding: 0.5em 1em;
+    padding: em 2em;
   }
   .nav__list {
     flex-direction: column;
@@ -535,11 +532,7 @@ img {
   .nav__list-item {
     margin: 0.5em 0;
   }
-  .nav__hamburger {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+  
   }
 
   /* Reorganize top intro section for mobile */

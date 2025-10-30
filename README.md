@@ -1,4 +1,4 @@
-#  - Welcome to my Portfolio
+#  Welcome to my Portfolio
 Open [https://pags.dev/](https://pags.dev/) to view the site.
 
 ## Tech Stack

@@ -1,12 +1,33 @@
 "use client"
 
+import { useEffect } from "react"
 import { motion } from "framer-motion"
 import JobTable from "./JobTable"
 import { fadeInUp } from "@/lib/animations"
 
 export default function BlogSection() {
+  useEffect(() => {
+    const scrollToBlogSection = () => {
+      if (window.location.hash !== "#blog") return
+
+      const section = document.getElementById("blog")
+      if (!section) return
+
+      requestAnimationFrame(() => {
+        section.scrollIntoView({ behavior: "smooth", block: "start" })
+      })
+    }
+
+    scrollToBlogSection()
+    window.addEventListener("hashchange", scrollToBlogSection)
+
+    return () => {
+      window.removeEventListener("hashchange", scrollToBlogSection)
+    }
+  }, [])
+
   return (
-    <section id="blog" className="relative min-h-screen px-4 py-16 sm:py-24">
+    <section id="blog" className="relative min-h-screen scroll-mt-24 px-4 py-16 sm:py-24">
       <div className="container mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -678,7 +678,7 @@ Even though that loop is simple, there are a lot of places where performance can
 
 ---
 
-## Why the Storage System Started Mattering So Much While training
+## Why the Storage System Started Mattering So Much While Training
 
 One thing that became obvious once I moved to larger datasets was that **the storage system matters a lot more than I expected**. The WAVE cluster stores most datasets on shared NFS storage, which is great for capacity but not ideal for workloads that perform lots of small random file reads.
 
@@ -746,7 +746,7 @@ Per GPU memory = Total / num_gpus + activations + overhead
 - Activation checkpointing: -2 GB → 13.5 GB
 - Add 2 GB overhead → 15.5 GB per GPU
 
-**Finally fits!** (15.5 GB < 32 GB)
+Finally fits! (15.5 GB < 32 GB)
 \`\`\`
 
 The trick that makes this possible is **FSDP**. Instead of every GPU storing full model parameters, gradients, and optimizer states, the training state is **sharded across GPUs**:

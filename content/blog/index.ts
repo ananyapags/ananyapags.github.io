@@ -572,7 +572,7 @@ Once I’ve worked through the puzzles, I want this post to turn into something 
   {
     jobId: 4038,
     name: "LLM_Training_Journey",
-    slug: "training-llms-under-hardware-constraints-wave-hpc",
+    slug: "training-llms-under-hardware-constraints",
     status: "RUNNING",
     runtime: "04h 15m",
     stack: ["HPC", "SLURM", "CUDA", "PyTorch", "FSDP", "Distributed Training", "Systems Engineering"],

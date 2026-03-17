@@ -778,7 +778,7 @@ Another thing that became interesting while profiling was identifying **kernel f
 
 ## The Other Very Real Constraint: SLURM and the 48-Hour Wall
 
-Another very real constraint in this environment is **SLURM**, and more specifically the fact that long jobs do not get to run forever. On paper it is easy to imagine a training run just continuing until convergence. In practice, the cluster has a **48-hour wall time**, which means any serious training run has to be designed to survive interruption.
+Another very real constraint in this environment is **SLURM**, and more specifically the fact that long jobs do not get to run forever. On paper it is easy to imagine a training run just continuing until convergence. In practice, the cluster has a **48-hour wall time**, which means any serious training run has to be well designed to survive interruption.
 
 That made **checkpointing** feel a lot less like a nice extra feature and a lot more like part of the core system design. If a run is going to be cut off at 48 hours, I need the job to save enough state that the next submission can resume cleanly instead of starting over. That means checkpointing not just model weights, but also optimizer state, scheduler state, scaler state for mixed precision, global step, epoch progress, and random seeds when possible.
 
@@ -854,8 +854,6 @@ Together they cover two very different system regimes.
 
 ## Final Thoughts
 
-The biggest lesson so far is that large language model training is **not just about the model**. It's about the entire system: memory layout, kernel efficiency, communication patterns, dataloader throughput, storage bandwidth, checkpoint/restart behavior, and scheduler constraints.
-
-Working on a constrained HPC cluster makes those dynamics impossible to ignore, and honestly that's probably the best possible way to learn how large-scale AI systems actually work.`
+The biggest lesson so far is that large language model training is **not just about the model**. It's about the entire system: memory layout, kernel efficiency, communication patterns, dataloader throughput, storage bandwidth, checkpoint/restart behavior, and scheduler constraints. Working on a constrained HPC cluster makes those dynamics impossible to ignore, and honestly that's probably the best possible way to learn how large-scale AI systems actually work.`
 },
 ]

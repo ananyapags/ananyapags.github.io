@@ -583,13 +583,11 @@ Once I’ve worked through the puzzles, I want this post to turn into something 
     ],
     summary:
       "Documenting my experience learning large language model training on constrained HPC infrastructure. From training GPT-2 Small from scratch to experimenting with FSDP fine-tuning of Mistral-7B, this post focuses on the real systems friction behind LLM work on a university cluster.",
-    content: `A lot of posts about training large language models assume dream hardware. You know the setup: racks of A100s with NVLink, perfectly homogeneous nodes, infinite memory, and GPU utilization graphs that look like a flat line at 100%. That is very much **not** my life right now (yet lol...waiting on that post grad money). My main compute environment is **WAVE HPC**, my university's shared cluster. It's powerful for research workloads, but it's definitely not a hyperscale AI training cluster. It's a real system with mixed hardware, shared scheduling, and the occasional moment where you stare at SLURM and think *"my job has been pending for 40 minutes what did I do to deserve this."* One day I'd love to build my own tiny basement GPU lab, but for now my "cluster" is basically whatever GPUs SLURM decides I get access to that day.
+    content: `Most posts about training LLMs assume you’re sitting on a dream setup—rows of A100s, perfect NVLink, infinite memory, and GPU utilization magically pinned at 100%. That’s…not my reality (yet—manifesting that post-grad paycheck). I’m working on my university’s HPC cluster, which is powerful but very real: mixed hardware, shared queues, and the occasional existential crisis while staring at SLURM like “why has my job been pending for 40 minutes, did I anger the scheduler gods?” Honestly, my “cluster” is just whatever GPUs I’m lucky enough to get that day. But weirdly, that constraint is what makes it interesting, mainly because you can’t brute force anything. You actually have to think: does this even fit in memory? are my GPUs doing real work or just vibing? am I compute-bound or getting wrecked by memory bandwidth? is my dataloader silently sabotaging me? and is NCCL communication about to become my villain arc? It ends up feeling less like “training models” and more like real performance engineering—which, if we’re being honest, is just debugging but with higher stakes and fancier graphs.
 
-Oddly enough, that constraint has been the most interesting part. When the hardware is limited you can't just brute force the problem. You actually have to think about how the system behaves. Instead of assuming more compute will solve everything, you start asking questions like whether the model actually fits in memory, whether the GPUs are doing real work, whether you're achieving anything close to peak TFLOPs, whether the workload is compute-bound or memory-bound, and whether the dataloader is quietly starving the device. You also start wondering whether distributed communication, usually handled by NCCL, is beginning to dominate runtime. That kind of thinking feels much closer to **performance engineering** than just "running models."
+##Outline
 
-## Outline
-
-1) Hardware overview: the compute and infrastructure environment
+1) Hardware overview: the compute and infrastructure environment I am working with
 2) Baseline experiments using GPT-2 Small
 3) Observations about training system behavior and bottlenecks
 4) The role of storage bandwidth and data pipelines
@@ -600,22 +598,21 @@ Oddly enough, that constraint has been the most interesting part. When the hardw
 
 ## What the Hardware Reality Actually Looks Like
 
-
-In theory there are more GPUs across the WAVE cluster, but the hardware I have access to as a CS masters student looks like this::
+In theory there are more GPUs across the uni cluster, but the hardware I usually work with as a CS master's student looks more like this:
 
 \`\`\`
-1 node  → 2 GPUs
-2 nodes → 4 GPUs (if the sysAdmin is feeling kind)
+1 node  → 2 allocated GPUs
+2 nodes → 4 allocated GPUs (if multi-node access is available)
 \`\`\`
 
 **GPU Node Specification (Dell PowerEdge R740)**
 \`\`\`
 → Node Type: Dell PowerEdge R740
-→ GPUs per node: 2× Tesla V100-PCIE-32GB
-→ Model: PCIe version (not SXM2, so no NVLink)
-→ Memory: 32GB HBM2 per GPU
-→ Interconnect: PCIe 3.0 x16 (~16 GB/s between GPUs)
-→ Power limit: 250W
+→ GPUs per node: 2 allocated (out of 4 available)
+→ GPU Model: Tesla V100-PCIE-32GB
+→ Total VRAM (allocated): 64 GB (2 × 32GB)
+→ Interconnect: PCIe (no NVLink)
+→ Power limit: 250W per GPU
 → CPU: Intel Xeon Gold 6148 @ 2.4GHz
 → 20 cores per processor × 2 sockets = 40 physical cores
 → With hyperthreading: 80 threads total
@@ -638,13 +635,13 @@ GPT-2 Small
 1–2 V100 GPUs
 \`\`\`
 
-It's small enough to run comfortably on my hardware but still large enough to expose real transformer training behavior. That made it perfect for learning the system. Even at this scale you still run into many of the same issues that appear in larger training runs: GPU utilization, batch sizing, optimizer overhead, dataloader throughput, distributed synchronization, and kernel launch efficiency. The difference is that experiments complete in **hours instead of weeks**, which means you can actually iterate and learn from each run.
+It's small enough to run comfortably on my hardware, but still large enough to expose real transformer training behavior. That made it perfect for learning the system. Even at this scale, you still run into many of the same issues that appear in larger training runs: GPU utilization, batch sizing, optimizer overhead, dataloader throughput, distributed synchronization, and kernel launch efficiency. The difference is that experiments complete in **hours instead of weeks**, which means you can actually iterate and learn from each run.
 
 ---
 
 ## What GPT-2 Small Actually Taught Me
 
-One of the first things GPT-2 Small taught me is that the **model itself is rarely the bottleneck**.
+One of the first things GPT-2 Small taught me is that **on my setup, the model itself was rarely the bottleneck**.
 
 **What my profiler showed me on the first naive run:**
 
@@ -658,9 +655,9 @@ Estimated time to completion: 14 hours
 
 Early on I thought transformer training was mostly a modeling problem, but once I started running jobs and looking at profiler traces it became obvious that the surrounding system matters just as much.
 
-The GPU doesn't magically reach perfect utilization because a training script exists. If the input pipeline is slow the GPU waits. If the batch size is poorly chosen the GPU waits. If CPU preprocessing lags behind the GPU waits. If synchronization happens too frequently the GPU waits. A lot of "GPU inefficiency" is really just **GPU starvation**.
+The GPU does not magically reach perfect utilization because a training script exists. If the input pipeline is slow, the GPU waits. If the batch size is poorly chosen, the GPU waits. If CPU preprocessing lags behind, the GPU waits. If synchronization happens too frequently, the GPU waits. A lot of "GPU inefficiency" is really just **GPU starvation**.
 
-This is also where I started thinking about hardware signals instead of just loss curves. I began looking at achieved TFLOPs versus theoretical peak, SM occupancy, memory bandwidth utilization, tokens-per-second throughput, and overall GPU duty cycle. Transformer attention is a good example of the tradeoff here because the **attention FLOP vs memory bandwidth ratio** changes depending on sequence length and batch size. In some cases attention kernels are compute-heavy, while in others they become memory-bound, meaning the GPU has plenty of available FLOPs but still spends time waiting on memory traffic.
+This is also where I started thinking about hardware signals instead of just loss curves. I began looking at achieved TFLOPs versus theoretical peak, SM occupancy, memory bandwidth utilization, tokens-per-second throughput, and overall GPU duty cycle. Transformer attention is a good example of the tradeoff here. Because attention scales quadratically with sequence length, longer sequences increase both compute and memory traffic. Depending on sequence length, batch size, and kernel efficiency, the workload can shift between being compute-bound and memory-bound. In other words, the GPU can have plenty of theoretical FLOPs available and still spend time waiting on memory movement.
 
 A simple conceptual breakdown that helped me reason about the training loop looked like this:
 
@@ -669,12 +666,12 @@ Forward pass
 ↓
 Backward pass
 ↓
-Gradient synchronization (NCCL all-reduce)
+Gradient synchronization
 ↓
 Optimizer step
 \`\`\`
 
-Even though that loop is simple, there are a lot of places where performance can disappear. GPT-2 Small turned out to be a great playground for learning how to **read the shape of a training run** and opmtize it.
+Even though that loop looks simple, there are a lot of places where performance can disappear. GPT-2 Small turned out to be a great playground for learning how to **read the shape of a training run** and optimize it.
 
 ---
 
@@ -682,12 +679,12 @@ Even though that loop is simple, there are a lot of places where performance can
 
 One thing that became obvious once I moved to larger datasets was that **the storage system matters a lot more than I expected**. The WAVE cluster stores most datasets on shared NFS storage, which is great for capacity but not ideal for workloads that perform lots of small random file reads.
 
-Early versions of my training runs used datasets stored as thousands of individual files, and what I noticed was that GPU utilization would randomly dip even though the model itself wasn't doing anything unusual. The dataloader was waiting on NFS. Each tiny file access meant another network round trip, which added latency to the input pipeline. When the GPU finishes its current batch but the next batch hasn't arrived yet, the device just sits idle.
+Early versions of my training runs used datasets stored as thousands of individual files, and what I noticed was that GPU utilization would randomly dip even though the model itself wasn't doing anything unusual. The dataloader was waiting on NFS. Each tiny file access meant another network round trip, which added latency to the input pipeline. When the GPU finishes its current batch but the next batch has not arrived yet, the device just sits idle.
 
 **The problem I was seeing:**
 \`\`\`
 Step 47: GPU util 78%, step time 1.8s
-Step 48: GPU util 12%, step time 4.2s
+Step 48: GPU util 12%, step time 4.2s <- what's going on here???
 Step 49: GPU util 81%, step time 1.7s
 \`\`\`
 
@@ -700,10 +697,9 @@ dataset/
   shard-0002.tar
 \`\`\`
 
-This dramatically improves throughput because sequential reads are much more efficient than lots of tiny file accesses over NFS. The dataloader can stream data from these shards instead of constantly opening and closing files across the network. Once I started thinking about dataset layout as part of the performance problem, it became much easier to understand why input pipelines sometimes limit tokens/sec even when the GPU still has compute headroom. 
+This turns the workload from many small random I/O operations into large sequential reads, which storage systems handle much more efficiently. The dataloader can stream data from these shards instead of constantly opening and closing files across the network. Once I started thinking about dataset layout as part of the performance problem, it became much easier to understand why input pipelines sometimes limit tokens/sec even when the GPU still has compute headroom.
 
-
-After repacking my dataset into sequential shards and setting proper num_workers, here is my final optimized run on GPT-2 Small:
+After repacking my dataset into sequential shards and setting a better number of dataloader workers, here is what the optimized GPT-2 Small run looked like:
 
 \`\`\`
 GPU Utilization: 82% (stable between 78-85%)
@@ -717,71 +713,75 @@ Estimated time to completion: 4.5 hours
 
 ## Moving From GPT-2 Small to Mistral-7B
 
-After getting comfortable with GPT-2 Small I wanted to experiment with something closer to a modern open LLM workflow, which led me to **Mistral-7B**. Obviously I'm not training a 7B parameter model from scratch on this cluster—that would be pure fantasy. But **fine-tuning** it is actually feasible with the right techniques.
+After getting comfortable with GPT-2 Small, I wanted to experiment with something closer to a modern open LLM workflow, which led me to **Mistral-7B**. Obviously I am not training a 7B parameter model from scratch on this cluster. That would be shitshow. But **fine-tuning** it is actually feasible with the right memory-saving techniques.
 
 **For Mistral-7B at FP16:**
 
 \`\`\`
 Model parameters:     7B × 2 bytes = 14 GB
-Gradients:            7B × 2 bytes = 14 GB  
-Optimizer states:     7B × 8 bytes = 56 GB (Adam)
-Activations (batch=1): ~3 GB
+Gradients:            7B × 2 bytes = 14 GB
+Optimizer states:     Adam states are much larger and quickly dominate memory
+Activations:          Additional per-GPU memory depending on batch size and sequence length
 
-Total without optimization: 87 GB (impossible on 32GB)
+Total without optimization: well beyond a single 32 GB V100
 \`\`\`
 
-**With FSDP (Fully Sharded Data Parallel):**
+The trick that makes this possible is **FSDP**. Instead of every GPU storing the full training state, FSDP shards model parameters, gradients, and optimizer state across GPUs. But activations still remain local to each GPU, so memory does not scale down perfectly.
+
+A more accurate mental model is:
 
 \`\`\`
-Per GPU memory = Total / num_gpus + activations + overhead
-= 87 GB / 2 + 3 GB + 2 GB overhead
-≈ 48.5 GB per GPU (still doesn't fit!)
+Without sharding
+→ full parameters on every GPU
+→ full gradients on every GPU
+→ full optimizer states on every GPU
+→ memory becomes the wall
+
+With FSDP
+→ parameters are sharded
+→ gradients are sharded
+→ optimizer states are sharded
+→ activations still stay local
 \`\`\`
 
-**With FSDP + CPU Offload + Activation Checkpointing:**
+Then you layer on additional techniques:
 
 \`\`\`
-- FSDP sharding: 43.5 GB per GPU
-- CPU offload optimizer states: -28 GB per GPU → 15.5 GB
-- Activation checkpointing: -2 GB → 13.5 GB
-- Add 2 GB overhead → 15.5 GB per GPU
-
-Finally fits! (15.5 GB < 32 GB)
+FSDP
++ mixed precision
++ CPU offload
++ activation checkpointing
++ gradient accumulation
 \`\`\`
 
-The trick that makes this possible is **FSDP**. Instead of every GPU storing full model parameters, gradients, and optimizer states, the training state is **sharded across GPUs**:
-
-\`\`\`
-GPU 0 → shard of parameters / gradients / optimizer state
-GPU 1 → shard of parameters / gradients / optimizer state
-\`\`\`
-
-This dramatically reduces memory usage per GPU, especially when combined with mixed precision, activation checkpointing, and gradient accumulation.
+That combination is what makes fine-tuning a model like Mistral-7B feel realistic on smaller hardware. The moment I stopped thinking "does the model fit?" and started thinking "which parts of the training state can I shard, offload, or recompute?" the problem became much more manageable.
 
 ---
 
 ## What Becomes the Bottleneck After Memory
 
-Once memory pressure is reduced, the next bottleneck often becomes **NCCL communication**. PyTorch relies on NCCL for collective operations like all-reduce, broadcast, and reduce-scatter during distributed training. With FSDP, parameter shards frequently need to be gathered and redistributed across GPUs during forward and backward passes. That means part of each training step can end up dominated by NCCL collectives instead of compute.
+Once memory pressure is reduced, the next bottleneck often becomes **communication**. In PyTorch distributed training, that usually means NCCL collectives like all-reduce, all-gather, reduce-scatter, and broadcast. With FSDP, parameter shards often need to be gathered and redistributed during forward and backward passes. That means part of each training step can end up dominated by communication instead of compute.
 
-On smaller setups like mine, usually two V100s, the biggest issue isn't raw bandwidth but **latency and synchronization stalls**. If gradient buckets are small, NCCL ends up launching many small all-reduce operations, which can create inefficient communication patterns. In those cases GPUs finish their backward pass and then sit idle waiting for NCCL to finish synchronizing gradients.
+On smaller setups like mine, usually two V100s, the issue is often not just raw bandwidth. It is also latency and synchronization stalls. If gradient buckets are too small, NCCL ends up launching many small collectives, which creates inefficient communication patterns. In those cases, GPUs finish their backward pass and then sit idle waiting for synchronization to finish.
 
 Conceptually the tradeoff looks like this:
 
 \`\`\`
-Without sharding → memory becomes the wall
-With FSDP → memory pressure drops → NCCL communication becomes visible
+Without sharding → memory becomes the main wall
+With sharding → memory pressure drops → communication overhead becomes much more visible
 \`\`\`
 
-Another thing that became interesting while profiling was identifying **kernel fusion opportunities**. Transformer workloads launch a large number of small kernels, and if those kernels aren't fused effectively the GPU can spend a surprising amount of time on launch overhead and memory movement instead of useful compute.
+One of the important ideas here is **overlap**. In a better setup, communication overlaps with computation so gradient synchronization is happening while other layers are still doing useful work. In a worse setup, communication becomes a hard stop where the GPUs just wait.
+
+Another thing that became interesting while profiling was spotting cases where the workload launched too many small kernels. Transformer workloads can easily spend time on launch overhead and memory movement if kernels are not fused well. This is one reason fused attention implementations and other optimized kernels matter so much. They reduce unnecessary memory traffic and make better use of the GPU.
 
 ---
 
 ## The Other Very Real Constraint: SLURM and the 48-Hour Wall
 
-Another very real constraint in this environment is **SLURM**, and more specifically the fact that long jobs do not get to run forever. On paper it is easy to imagine a training run just continuing until convergence. In practice, the cluster has a **48-hour wall time**, which means any serious training run has to be designed to survive interruption.
+Another very real constraint in this environment is **SLURM**, and more specifically the fact that long jobs do not get to run forever. On paper it is easy to imagine a training run continuing until convergence. In practice, the cluster has a **48-hour wall time**, which means any serious training run has to be designed to survive interruption.
 
-That made **checkpointing** feel a lot less like a nice extra feature and a lot more like part of the core system design. If a run is going to be cut off at 48 hours, I need the job to save enough state that the next submission can resume cleanly instead of starting over. That means checkpointing not just model weights, but also optimizer state, scheduler state, scaler state for mixed precision, global step, epoch progress, and random seeds when possible.
+That made checkpointing feel a lot less like a nice extra feature and a lot more like part of the core system design. If a run is going to be cut off at 48 hours, I need the job to save enough state that the next submission can resume cleanly instead of starting over. That means checkpointing not just model weights, but also optimizer state, scheduler state, scaler state for mixed precision, global step, epoch progress, and random seeds when possible.
 
 Conceptually the flow becomes:
 
@@ -799,35 +799,31 @@ load checkpoint
 continue from last saved step
 \`\`\`
 
-This changes the engineering mindset. Suddenly I care about checkpoint frequency, checkpoint size, save overhead, and how reliable restart logic is. Save too often and I waste time writing huge state files. Save too rarely and I risk losing hours of training when the job gets killed. On shared storage, checkpoint writes can also be a bottleneck, especially for larger FSDP jobs where the optimizer state is not small.
+This changes the engineering mindset. Suddenly I care about checkpoint frequency, checkpoint size, save overhead, and how reliable restart logic is. Save too often and I waste time writing huge state files. Save too rarely and I risk losing hours of training when the job gets killed. On shared systems, checkpointing also has to compete with storage bandwidth, especially if multiple jobs are writing large files at the same time.
 
-For GPT-2 Small this is relatively easy to manage, but for Mistral-7B fine-tuning it becomes more serious. In FSDP, checkpointing is trickier because the model state is sharded across ranks. That means restart logic has to be more careful.
+For GPT-2 Small this is relatively easy to manage, but for Mistral-7B fine-tuning it becomes more serious. In FSDP, checkpointing is trickier because the model state is sharded across ranks, so restart logic has to be much more careful.
 
 ---
 
 ## Three Mistakes That Cost Me Time
 
-**Mistake #1: Assuming Infiniband Just Works**
+**Mistake #1: Assuming the network setup "just works"**
 
-I submitted multi-node jobs and wondered why they were slower than single-node. Turned out I was using Ethernet the whole time because I hadn't set the environment variables.
+I submitted multi-node jobs and wondered why they were slower than single-node. That was my first lesson that distributed training only looks simple from far away. If the communication path is wrong, or if the job is not actually using the interconnect you think it is, scaling can get worse instead of better.
 
-**Fix:** Always test your network with NCCL tests before assuming you're getting the bandwidth you think you are.
+**Fix:** Always test communication and validate your distributed setup before assuming you are getting the bandwidth or latency you expect.
 
-**Mistake #2: Using Shared Storage for Training**
+**Mistake #2: Using shared storage like it was local disk**
 
-My first few runs trained directly on NFS. GPU utilization looked like a heart monitor—spiking then flatlining. Each time the dataloader hit NFS, the GPU sat idle.
+My first few runs trained directly from NFS. GPU utilization looked like a heart monitor: spike, stall, spike, stall. Every time the dataloader hit storage latency, the GPU sat idle.
 
-**Fix:** Copy data to local SSD at the start of each job. The 5 minutes of copying saves hours of GPU wait time.
+**Fix:** Treat data placement as part of performance engineering. Repack files into sequential shards, use enough dataloader workers, and move hot data to local SSD when possible.
 
-**Mistake #3: Ignoring NCCL Timeouts**
+**Mistake #3: Treating restart logic like an afterthought**
 
-My multi-node jobs kept failing after 2-3 hours. Turned out NCCL's default timeout (30s) was triggering during occasional Infiniband congestion.
+It is easy to focus on model code and ignore operational details until the first long job dies. Once that happens, checkpointing stops feeling optional.
 
-**Fix:**
-\`\`\`bash
-export NCCL_TIMEOUT=120
-export NCCL_IB_TIMEOUT=22
-\`\`\`
+**Fix:** Design long runs so they can resume cleanly. Save the full training state, test restart behavior early, and assume the scheduler will eventually interrupt your job because it probably will.
 
 ---
 
@@ -843,20 +839,20 @@ GPT-2 Small
 → builds intuition
 
 Mistral-7B + FSDP
-→ realistic LLM workflow
+→ more realistic LLM workflow
 → introduces sharding
-→ memory pressure becomes real
-→ communication overhead becomes visible
+→ makes memory pressure real
+→ makes communication overhead visible
 \`\`\`
 
-Together they cover two very different system regimes.
+Together they cover two very different system regimes. One taught me how to profile and reason about training behavior. The other forced me to think much harder about sharding, memory layout, communication, and restartability.
 
 ---
 
 ## Final Thoughts
 
-The biggest lesson so far is that large language model training is **not just about the model**. It's about the entire system: memory layout, kernel efficiency, communication patterns, dataloader throughput, storage bandwidth, checkpoint/restart behavior, and scheduler constraints.
+The biggest lesson so far is that large language model training is **not just about the model**. It is about the entire system: memory layout, kernel efficiency, communication patterns, dataloader throughput, storage bandwidth, checkpoint and restart behavior, and scheduler constraints.
 
-Working on a constrained HPC cluster makes those dynamics impossible to ignore, and honestly that's probably the best possible way to learn how large-scale AI systems actually work.`
+Working on a constrained HPC cluster makes those dynamics impossible to ignore, and honestly that is probably the best possible way to learn how large-scale AI systems actually work.`
 },
 ]

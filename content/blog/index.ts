@@ -587,7 +587,7 @@ Once I’ve worked through the puzzles, I want this post to turn into something 
 
 ## Outline
 
-1) Hardware overview: the compute and infrastructure environment I am working with
+1) Hardware overview: the compute and infrastructure environment that I am working with
 2) Baseline experiments using GPT-2 Small
 3) Observations about training system behavior and bottlenecks
 4) The role of storage bandwidth and data pipelines

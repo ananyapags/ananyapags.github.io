@@ -585,7 +585,7 @@ Once I’ve worked through the puzzles, I want this post to turn into something 
       "Documenting my experience learning large language model training on constrained HPC infrastructure. From training GPT-2 Small from scratch to experimenting with FSDP fine-tuning of Mistral-7B, this post focuses on the real systems friction behind LLM work on a university cluster.",
     content: `Most posts about training LLMs assume you’re sitting on a dream setup—rows of A100s, perfect NVLink, infinite memory, and GPU utilization magically pinned at 100%. That’s…not my reality (yet—manifesting that post-grad paycheck). I’m working on my university’s HPC cluster, which is powerful but very real: mixed hardware, shared queues, and the occasional existential crisis while staring at SLURM like “why has my job been pending for 40 minutes, did I anger the scheduler gods?” Honestly, my “cluster” is just whatever GPUs I’m lucky enough to get that day. But weirdly, that constraint is what makes it interesting, mainly because you can’t brute force anything. You actually have to think: does this even fit in memory? are my GPUs doing real work or just vibing? am I compute-bound or getting wrecked by memory bandwidth? is my dataloader silently sabotaging me? and is NCCL communication about to become my villain arc? It ends up feeling less like “training models” and more like real performance engineering—which, if we’re being honest, is just debugging but with higher stakes and fancier graphs.
 
-##Outline
+## Outline
 
 1) Hardware overview: the compute and infrastructure environment I am working with
 2) Baseline experiments using GPT-2 Small

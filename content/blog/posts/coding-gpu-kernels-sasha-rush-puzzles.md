@@ -4,7 +4,7 @@ Coming into this, I was very much a high-level programmer without much systems-l
 
 ---
 
-| Term used | Meaning |
+| My Term | CUDA ver |
 | --- | --- |
 | **worker** | thread |
 | **team** | block |

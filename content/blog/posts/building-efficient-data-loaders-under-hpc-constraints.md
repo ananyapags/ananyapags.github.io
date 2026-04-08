@@ -1,4 +1,4 @@
-In past projects, my performance issues in the last 10-20% of GPU util almost always came down to **data loading and I/O**. 
+In past projects, my performance issues in the last 10-20% of GPU util almost always came down to **I/O**. 
 
 ---
 

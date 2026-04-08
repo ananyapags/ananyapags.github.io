@@ -17,7 +17,9 @@ function stripMarkdownLinks(text: string) {
 }
 
 export async function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }))
+  return blogPosts
+    .filter((post) => post.status !== "QUEUED")
+    .map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

@@ -26,7 +26,15 @@ export async function getBlogPost(slug: string): Promise<FullBlogPost | undefine
   }
 
   const contentPath = path.join(process.cwd(), "content", "blog", "posts", `${slug}.md`)
-  const content = await readFile(contentPath, "utf8")
+  let content: string
+  try {
+    content = await readFile(contentPath, "utf8")
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return undefined
+    }
+    throw error
+  }
 
   return {
     ...meta,

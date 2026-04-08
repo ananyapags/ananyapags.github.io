@@ -1,17 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, IBM_Plex_Mono } from "next/font/google"
-import { ThemeProvider } from "next-themes"
 import "./globals.css"
 import ScanlineOverlay from "@/components/ScanlineOverlay"
 import GridBackground from "@/components/GridBackground"
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
-const ibmPlexMono = IBM_Plex_Mono({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
 
 export const metadata: Metadata = {
   title: "Pags Home",
@@ -43,14 +34,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${ibmPlexMono.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem>
-          <GridBackground />
-          <ScanlineOverlay />
-          {children}
-
-        </ThemeProvider>
+    <html lang="en">
+      <body className="font-sans antialiased">
+        <GridBackground />
+        <ScanlineOverlay />
+        {children}
       </body>
     </html>
   )

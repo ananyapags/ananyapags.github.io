@@ -3,17 +3,13 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { Menu } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import ThemeToggle from "./ThemeToggle"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 const navLinks = [
-  { href: "#work", label: "Work" },
   { href: "#blog", label: "Blog" },
-  { href: "#contact", label: "Contact" },
+  { href: "#work", label: "Work" },
 ]
 
 // external links removed per request
@@ -74,7 +70,9 @@ export default function Nav() {
           <span className="font-mono text-xl font-bold tracking-tight text-neon-green transition-all group-hover:glow-soft crt">
             PAGS
           </span>
-          <span className="hidden sm:inline font-mono text-sm text-[var(--muted)]">⚡</span>
+          <span className="hidden h-5 w-5 items-center justify-center text-base leading-none text-[var(--muted)] sm:inline-flex">
+            ⚡
+          </span>
         </a>
 
         {/* Right: Navigation Links - Desktop */}
@@ -91,13 +89,7 @@ export default function Nav() {
                   className="relative px-3 py-2 font-mono text-sm transition-colors hover:text-neon-cyan focus:outline-none focus:ring-2 focus:ring-neon-pink"
                 >
                   {link.label}
-                  {isActive && (
-                    <motion.div
-                      layoutId="nav-indicator"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-neon-cyan glow-soft"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
-                  )}
+                  {isActive && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-neon-cyan glow-soft" />}
                 </a>
               )
             })}
@@ -110,35 +102,33 @@ export default function Nav() {
         </div>
 
         {/* Mobile menu */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="relative flex items-center gap-2 md:hidden">
           <ThemeToggle />
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-64 border-neon-green/30 bg-[var(--surface-1)]/95 backdrop-blur-lg">
-              <div className="flex flex-col gap-6 pt-8">
-                {/* Main nav links */}
-                <div className="flex flex-col gap-2">
-                  {navLinks.map((link) => (
-                    <a
-                      key={link.href}
-                      href={pathname === "/" ? link.href : `/${link.href}`}
-                      onClick={(e) => handleNavClick(e, link.href)}
-                      className="rounded px-3 py-2 font-mono text-sm transition-colors hover:bg-neon-cyan/10 hover:text-neon-cyan focus:outline-none focus:ring-2 focus:ring-neon-pink"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-
-                {/* External links removed */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((open) => !open)}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md transition-all hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-pink"
+            aria-expanded={mobileOpen}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          {mobileOpen && (
+            <div className="absolute right-0 top-12 z-50 w-64 rounded-lg border border-neon-green/30 bg-[var(--surface-1)]/95 p-4 backdrop-blur-lg">
+              <div className="flex flex-col gap-2">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={pathname === "/" ? link.href : `/${link.href}`}
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className="rounded px-3 py-2 font-mono text-sm transition-colors hover:bg-neon-cyan/10 hover:text-neon-cyan focus:outline-none focus:ring-2 focus:ring-neon-pink"
+                  >
+                    {link.label}
+                  </a>
+                ))}
               </div>
-            </SheetContent>
-          </Sheet>
+            </div>
+          )}
         </div>
       </div>
     </nav>

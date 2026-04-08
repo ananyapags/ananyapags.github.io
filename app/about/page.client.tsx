@@ -1,10 +1,8 @@
 "use client"
 
-import { } from "react"
 import { motion } from "framer-motion"
 import Nav from "@/components/Nav"
 import GlitchTransition from "@/components/GlitchTransition"
-import { Button } from "@/components/ui/button"
 import { fadeInUp, staggerContainer } from "@/lib/animations"
 
 export default function AboutPageClient() {
@@ -20,7 +18,7 @@ export default function AboutPageClient() {
             <motion.div variants={fadeInUp} className="space-y-4">
               <h1 className="font-mono text-4xl font-bold text-neon-green md:text-5xl">About</h1>
               <p className="text-pretty text-lg leading-relaxed text-muted-foreground">
-                System specifications and diagnostics for Pag's performance engineering profile.
+                {"System specifications and diagnostics for Pag's performance engineering profile."}
               </p>
             </motion.div>
 

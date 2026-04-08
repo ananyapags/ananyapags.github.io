@@ -1,10 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { blogPosts, type BlogPost } from "@/content/blog"
 import JobCard from "./JobCard"
-import { fadeInUp } from "@/lib/animations"
 
 export default function JobTable() {
   const [expandedJob, setExpandedJob] = useState<number | null>(null)
@@ -21,13 +19,7 @@ export default function JobTable() {
       {/* Table Rows */}
       <div className="space-y-2">
         {blogPosts.map((post, index) => (
-          <motion.div
-            key={post.jobId}
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ delay: index * 0.1 }}
-          >
+          <div key={post.jobId}>
             <button
               onClick={() => setExpandedJob(expandedJob === post.jobId ? null : post.jobId)}
               className="w-full rounded-lg border border-border/40 bg-card/30 p-3 sm:p-4 text-left transition-all hover:border-neon-cyan/50 hover:bg-card/50 hover:glow-cyan focus:outline-none focus:ring-2 focus:ring-neon-cyan"
@@ -52,20 +44,12 @@ export default function JobTable() {
               </div>
             </button>
 
-            <AnimatePresence>
-              {expandedJob === post.jobId && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <JobCard post={post} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+            {expandedJob === post.jobId && (
+              <div className="overflow-hidden">
+                <JobCard post={post} />
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </div>

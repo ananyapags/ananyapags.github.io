@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { FileText, ArrowRight } from "lucide-react"
+import ReactMarkdown from "react-markdown"
 import NeonBadge from "./NeonBadge"
 import type { BlogPost } from "@/content/blog"
 
@@ -13,7 +14,16 @@ export default function JobCard({ post }: JobCardProps) {
     <div className="mt-2 rounded-lg border border-neon-cyan/30 bg-card/50 p-6 backdrop-blur-sm">
       <div className="space-y-4">
         {/* Summary */}
-        <p className="text-sm leading-relaxed text-muted-foreground">{post.summary}</p>
+        <ReactMarkdown
+          components={{
+            p: ({ node, ...props }) => <p className="text-sm leading-relaxed text-muted-foreground" {...props} />,
+            a: ({ node, ...props }) => (
+              <a className="text-neon-cyan underline underline-offset-4" target="_blank" rel="noopener noreferrer" {...props} />
+            ),
+          }}
+        >
+          {post.summary}
+        </ReactMarkdown>
 
         {/* Stack */}
         <div className="space-y-2">
@@ -43,16 +53,18 @@ export default function JobCard({ post }: JobCardProps) {
         )}
 
         {/* View Logs Button */}
-        <Button
-          asChild
-          className="group w-full border-neon-green bg-neon-green/10 font-mono text-neon-green hover:bg-neon-green/20 hover:glow-green sm:w-auto"
-        >
-          <Link href={`/blog/${post.slug}`}>
-            <FileText className="mr-2 h-4 w-4" />
-            View Post
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </Button>
+        {post.status !== "QUEUED" && (
+          <Button
+            asChild
+            className="group w-full border-neon-green bg-neon-green/10 font-mono text-neon-green hover:bg-neon-green/20 hover:glow-green sm:w-auto"
+          >
+            <Link href={`/blog/${post.slug}`}>
+              <FileText className="mr-2 h-4 w-4" />
+              View Post
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   )

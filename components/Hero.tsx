@@ -58,24 +58,23 @@ export default function Hero() {
           className="mx-auto mb-6 sm:mb-8 max-w-2xl space-y-3 sm:space-y-4 text-pretty leading-relaxed px-4"
         >
           <p className="text-base sm:text-lg text-muted-foreground">
-            I'm a Developer passionate about{" "}
+            {"I'm a Developer passionate about "}
             <span className="font-semibold text-neon-green">High Performance Computing</span> and{" "}
-            <span className="font-semibold text-neon-green">Performance Engineering</span>. I'm also committed to
-            advancing women's leadership in engineering and enjoy mentoring others in the field!
+            <span className="font-semibold text-neon-green">Performance Engineering</span>.
+            {" I'm also committed to advancing women's leadership in engineering and enjoy mentoring others in the field!"}
           </p>
 
           <div className="rounded-lg border border-neon-magenta/30 bg-card/50 p-3 sm:p-4 backdrop-blur-sm">
             <p className="font-mono text-xs sm:text-sm">
-              <span className="text-neon-magenta">Fun fact:</span> When I'm not coding, you can usually find me curled
-              up with a good fantasy book. Lately, I've been recommending{" "}
-              <span className="italic text-neon-cyan">"The Left Hand of Darkness"</span> by Ursula K. Le Guin—it's a
-              fantastic read!
+              <span className="text-neon-magenta">Fun fact:</span>
+              {" When I'm not coding, you can usually find me curled up with a good fantasy book. Lately, I've been recommending "}
+              <span className="italic text-neon-cyan">{'"The Left Hand of Darkness"'}</span>
+              {" by Ursula K. Le Guin; it's a fantastic read!"}
             </p>
           </div>
 
           <p className="text-base sm:text-lg text-muted-foreground">
-            I'm actively seeking innovative tech opportunities and love connecting with people who share these
-            interests. Say hi or let's build something!
+            {"I'm actively seeking innovative tech opportunities and love connecting with people who share these interests. Say hi or let's build something!"}
           </p>
         </motion.div>
 

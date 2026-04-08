@@ -1,9 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Play, Pause, ExternalLink } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import NeonBadge from "./NeonBadge"
 import { projects, type Project } from "@/content/projects"
 
@@ -44,28 +42,22 @@ export default function TerminalFeed() {
           <span className="hidden sm:inline">terminal@pags:~/projects</span>
           <span className="sm:hidden">~/projects</span>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
+          type="button"
           onClick={() => setIsPlaying(!isPlaying)}
-          className="h-7 font-mono text-xs text-neon-cyan hover:glow-cyan"
+          className="inline-flex h-7 items-center rounded-md px-3 font-mono text-xs text-neon-cyan transition-all hover:bg-neon-cyan/10 hover:glow-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
           aria-label={isPlaying ? "Pause feed" : "Play feed"}
         >
           {isPlaying ? <Pause className="mr-1 h-3 w-3" /> : <Play className="mr-1 h-3 w-3" />}
           {isPlaying ? "Pause" : "Play"}
-        </Button>
+        </button>
       </div>
 
       {/* Terminal Content */}
       <div className="min-h-[400px] rounded-b-lg border border-neon-green/30 bg-card/50 dark:bg-black/80 p-3 sm:p-4 font-mono text-xs sm:text-sm backdrop-blur-sm">
         <div className="space-y-3">
           {projects.slice(0, currentIndex).map((project, index) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <div key={project.id}>
               <button
                 onClick={() => setExpandedId(expandedId === project.id ? null : project.id)}
                 className="w-full text-left transition-all hover:bg-neon-green/5 focus:outline-none focus:ring-1 focus:ring-neon-cyan"
@@ -89,31 +81,19 @@ export default function TerminalFeed() {
                 </div>
               </button>
 
-              <AnimatePresence>
-                {expandedId === project.id && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <ProjectDetail project={project} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+              {expandedId === project.id && (
+                <div className="overflow-hidden">
+                  <ProjectDetail project={project} />
+                </div>
+              )}
+            </div>
           ))}
 
           {currentIndex < projects.length && isPlaying && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center gap-2 text-neon-cyan"
-            >
+            <div className="flex items-center gap-2 text-neon-cyan">
               <span className="animate-pulse">▋</span>
               <span>Loading next entry...</span>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
@@ -150,18 +130,16 @@ function ProjectDetail({ project }: { project: Project }) {
       {project.links && project.links.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {project.links.map((link) => (
-            <Button
+            <a
               key={link.label}
-              asChild
-              size="sm"
-              variant="outline"
-              className="border-neon-magenta font-mono text-xs sm:text-sm text-neon-magenta hover:bg-neon-magenta/10 hover:glow-magenta bg-transparent"
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-8 items-center rounded-md border border-neon-magenta bg-transparent px-3 font-mono text-xs text-neon-magenta transition-all hover:bg-neon-magenta/10 hover:glow-magenta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-magenta sm:text-sm"
             >
-              <a href={link.href} target="_blank" rel="noopener noreferrer">
-                {link.label}
-                <ExternalLink className="ml-2 h-3 w-3" />
-              </a>
-            </Button>
+              {link.label}
+              <ExternalLink className="ml-2 h-3 w-3" />
+            </a>
           ))}
         </div>
       )}

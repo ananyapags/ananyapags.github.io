@@ -43,12 +43,14 @@ export default async function BlogPostPage({ params }: PageProps) {
       <section className="relative px-4 py-12 sm:py-20">
         <div className="container mx-auto max-w-6xl">
           <div className="mx-auto max-w-4xl space-y-8">
-            <div className="space-y-3">
-              <h1 className="font-mono text-3xl font-bold text-neon-green crt sm:text-4xl">{post.name}</h1>
+            <div className="min-w-0 space-y-3">
+              <h1 className="max-w-full break-words font-mono text-2xl font-bold leading-tight text-neon-green crt sm:text-4xl">
+                {post.name}
+              </h1>
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  p: ({ node, ...props }) => <p className="text-sm text-foreground/80 sm:text-base" {...props} />,
+                  p: ({ node, ...props }) => <p className="break-words text-sm text-foreground/80 sm:text-base" {...props} />,
                   a: ({ node, ...props }) => (
                     <a className="text-neon-cyan underline underline-offset-4" target="_blank" rel="noopener noreferrer" {...props} />
                   ),
@@ -66,7 +68,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               </div>
             </div>
 
-            <article className="max-w-none font-sans">
+            <article className="min-w-0 max-w-none font-sans">
               <div className="space-y-5 text-[15px] leading-7 sm:text-[17px]">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
@@ -80,7 +82,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     h3: ({ node, ...props }) => (
                       <h3 className="mt-7 mb-3 text-lg font-semibold text-neon-cyan sm:text-xl" {...props} />
                     ),
-                    p: ({ node, ...props }) => <p className="my-0 text-foreground/90" {...props} />,
+                    p: ({ node, ...props }) => <p className="my-0 break-words text-foreground/90" {...props} />,
                     ul: ({ node, ...props }) => <ul className="my-4 list-disc space-y-2 pl-6 marker:text-neon-cyan" {...props} />,
                     ol: ({ node, ...props }) => <ol className="my-4 list-decimal space-y-2 pl-6 marker:text-neon-cyan" {...props} />,
                     li: ({ node, ...props }) => <li className="text-foreground/90" {...props} />,
@@ -113,7 +115,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                       return (
                         <code
-                          className="rounded bg-[var(--surface-1)] px-1.5 py-0.5 font-mono text-[0.9em] text-neon-cyan"
+                          className="break-words rounded bg-[var(--surface-1)] px-1.5 py-0.5 font-mono text-[0.9em] text-neon-cyan"
                           {...props}
                         >
                           {children}
@@ -122,8 +124,8 @@ export default async function BlogPostPage({ params }: PageProps) {
                     },
                     table: ({ node, ...props }) => (
                       <div className="my-6 overflow-hidden rounded-2xl border border-border/60 bg-[var(--surface-1)]/45 shadow-[0_14px_40px_rgba(0,0,0,0.14)]">
-                        <div className="w-full overflow-x-auto">
-                          <table className="min-w-[720px] w-full border-collapse text-left text-sm sm:text-base" {...props} />
+                        <div className="w-full max-w-full overflow-x-auto overscroll-x-contain">
+                          <table className="w-full min-w-[540px] border-collapse text-left text-xs sm:min-w-[720px] sm:text-base" {...props} />
                         </div>
                       </div>
                     ),
@@ -131,12 +133,12 @@ export default async function BlogPostPage({ params }: PageProps) {
                     tbody: ({ node, ...props }) => <tbody className="[&_tr:nth-child(even)]:bg-white/[0.025] [&_p]:my-0" {...props} />,
                     th: ({ node, ...props }) => (
                       <th
-                        className="border-b border-border/60 px-4 py-3 align-top font-mono text-[11px] uppercase tracking-[0.18em] text-neon-green sm:px-5 sm:text-xs"
+                        className="border-b border-border/60 px-3 py-2.5 align-top font-mono text-[10px] uppercase tracking-[0.14em] text-neon-green sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.18em]"
                         {...props}
                       />
                     ),
                     td: ({ node, ...props }) => (
-                      <td className="border-b border-border/40 px-4 py-4 align-top leading-7 text-foreground/90 sm:px-5" {...props} />
+                      <td className="border-b border-border/40 px-3 py-3 align-top leading-6 break-words text-foreground/90 sm:px-5 sm:py-4 sm:leading-7" {...props} />
                     ),
                   }}
                 >
